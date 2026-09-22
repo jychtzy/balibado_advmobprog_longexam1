@@ -1,3 +1,5 @@
+DISCUSSION:
+
 The project setup for balibado_advmobprog_longexam1 (located in the balibado_longexam1 directory) begins by executing flutter pub get to resolve project dependencies. The application is designed to utilize custom typography by dropping FrutigerLTStd-Roman.otf and KlavikaBoldBold.otf into assets/fonts/. While these binary assets are represented by .gitkeep placeholder files in the repository, pubspec.yaml already maps them so the app compiles seamlessly; if any custom font file is absent during flutter run, the splash screen and supporting widgets automatically fall back to standard Material icons without breaking execution.
 
 User authentication and session lifecycle are handled through AuthService and AuthProvider. The app sends a POST /user/login request to the DummyJSON API (testable with credentials such as emilys / emilyspass), persisting user data and authentication tokens locally via shared_preferences. On initial boot, SplashScreen triggers AuthProvider.restoreSession() to inspect saved credentials and dynamically route users either to HomeScreen if logged in or SigninScreen if unauthenticated.
