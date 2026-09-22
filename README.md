@@ -1,54 +1,7 @@
-# balibado_longexam1
+The project setup for balibado_advmobprog_longexam1 (located in the balibado_longexam1 directory) begins by executing flutter pub get to resolve project dependencies. The application is designed to utilize custom typography by dropping FrutigerLTStd-Roman.otf and KlavikaBoldBold.otf into assets/fonts/. While these binary assets are represented by .gitkeep placeholder files in the repository, pubspec.yaml already maps them so the app compiles seamlessly; if any custom font file is absent during flutter run, the splash screen and supporting widgets automatically fall back to standard Material icons without breaking execution.
 
-Flutter app consuming [dummyjson.com](https://dummyjson.com) (Users, Posts, Comments).
+User authentication and session lifecycle are handled through AuthService and AuthProvider. The app sends a POST /user/login request to the DummyJSON API (testable with credentials such as emilys / emilyspass), persisting user data and authentication tokens locally via shared_preferences. On initial boot, SplashScreen triggers AuthProvider.restoreSession() to inspect saved credentials and dynamically route users either to HomeScreen if logged in or SigninScreen if unauthenticated.
 
-## Setup
+Once inside the app, user profiles and application settings are fully configurable. ProfileScreen leverages PostService to perform a GET /posts/user/{id} request, displaying the current user's profile details along with their authored posts. SettingsScreen provides toggles for dark mode and push notifications, persisting user choices to shared_preferences, and features a Sign Out action that clears stored tokens from local storage and returns the user to SigninScreen.
 
-1. `flutter pub get`
-2. Add real font files to `assets/fonts/` (`FrutigerLTStd-Roman.otf`,
-   `KlavikaBoldBold.otf`) . These
-   binary assets could not be generated here — the folders exist as
-   placeholders (each has a `.gitkeep`) but `pubspec.yaml` already
-   references the expected filenames, so the app will build once the
-   files are dropped in. `SplashScreen`/widgets fall back to Material
-   icons if an asset is missing, so the app still runs without them.
-3. `flutter run`
-
-## Enhancement 1 — Auth + shared_preferences + Splash screen
-- `lib/services/auth_service.dart` — `POST /user/login`, persists the
-  user + tokens to `shared_preferences`.
-- `lib/providers/auth_provider.dart` — app-wide auth state.
-- `lib/screens/splash_screen.dart` — on boot, calls
-  `AuthProvider.restoreSession()` and routes to `HomeScreen` (logged
-  in) or `SigninScreen` (not logged in).
-- `lib/screens/signin_screen.dart` — login form. Try
-  `emilys` / `emilyspass` (or any account from
-  https://dummyjson.com/users).
-
-## Enhancement 2 — Posts by userID + Settings + Sign Out
-- `lib/services/post_service.dart#getPostsByUser` —
-  `GET /posts/user/{id}`.
-- `lib/screens/profile_screen.dart` — shows the logged-in user's info
-  and their posts.
-- `lib/screens/settings_screen.dart` — dark-mode & notification
-  preference toggles (persisted via `shared_preferences`) and a
-  **Sign Out** button that clears the session and returns to
-  `SigninScreen`.
-
-## Enhancement 3 — Comments per post + clickable like + add comment
-- `lib/services/comment_service.dart` — `GET /comments/post/{postId}`
-  and `POST /comments/add`.
-- `lib/screens/detail_screen.dart` + `lib/widgets/comment_tile.dart` —
-  lists all comments for a post; tapping the heart icon toggles a
-  local "liked" state and adjusts the like counter (dummyjson has no
-  persistent like endpoint, so this is tracked client-side); an
-  "Add a comment" button posts a new comment and prepends it to the
-  list.
-
-## Notes
-- `provider` was added to `pubspec.yaml` dependencies (not present in
-  the original file you shared) because it's used for `ThemeProvider`
-  and the new `AuthProvider`. Remove/replace it if your course
-  requires a different state-management approach.
-- Folder name: `balibado_longexam1`. `pubspec.yaml` name:
-  `balibado_advmobprog_longexam1`, as requested.
+Post-level interactivity is managed in DetailScreen and CommentTile via CommentService. This service fetches post discussion threads using GET /comments/post/{postId} and submits new entries through POST /comments/add, which immediately prepends new comments to the UI list. Because DummyJSON lacks an active endpoint for persisting likes, post likes are tracked using client-side state toggling that instantly updates the heart visual and increments the local like count. Finally, provider was integrated into pubspec.yaml to power reactive state management across AuthProvider and ThemeProvider.
